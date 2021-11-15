@@ -35,10 +35,13 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
             needsTableViewUpdate = false
         }
         var snap = NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>()
-        snap.appendSections(sections)
-        for (section, items) in items {
-            snap.appendItems(items, toSection: section)
+        snap.appendSections(sections.filter { items.keys.contains($0) })
+        for section in sections {
+            if let sectionItems = items[section] {
+                snap.appendItems(sectionItems, toSection: section)
+            }
         }
+        
         apply(snap, animatingDifferences: true)
     }
     
