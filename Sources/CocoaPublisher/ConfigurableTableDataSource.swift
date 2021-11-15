@@ -10,12 +10,12 @@ import UIKit
 public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifierType>: UITableViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType> where SectionIdentifierType : Hashable, ItemIdentifierType : Hashable {
     public var items = [SectionIdentifierType: [ItemIdentifierType]]() {
         didSet {
-            NotificationQueue.default.enqueue(Notification(name: updateItemsNotification, object: self, userInfo: nil), postingStyle: .whenIdle, coalesceMask: [.onName, .onSender], forModes: nil)
+            NotificationQueue.default.enqueue(Notification(name: updateItemsNotification, object: self, userInfo: nil), postingStyle: .asap, coalesceMask: [.onName, .onSender], forModes: nil)
         }
     }
     public var sections = [SectionIdentifierType]() {
         didSet {
-            NotificationQueue.default.enqueue(Notification(name: updateItemsNotification, object: self, userInfo: nil), postingStyle: .whenIdle, coalesceMask: [.onName, .onSender], forModes: nil)
+            NotificationQueue.default.enqueue(Notification(name: updateItemsNotification, object: self, userInfo: nil), postingStyle: .asap, coalesceMask: [.onName, .onSender], forModes: nil)
         }
     }
     
@@ -28,6 +28,12 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
     
     @objc private func updateItems() {
         var snap = NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>()
+//        for section in sections {
+//            if let sectionItems = items[section] {
+//                snap.appendSections([section])
+//                snap.appendItems(sectionItems, toSection: section)
+//            }
+//        }
         snap.appendSections(sections)
         for (section, items) in items {
             snap.appendItems(items, toSection: section)
