@@ -16,23 +16,23 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
     }
     public var sections = [SectionIdentifierType]() {
         didSet {
-            needsUpdateItems = true
+            needsTableViewUpdate = true
             NotificationQueue.default.enqueue(Notification(name: updateItemsNotification, object: self, userInfo: nil), postingStyle: .whenIdle, coalesceMask: [.onName, .onSender], forModes: nil)
         }
     }
-    private(set) public var needsUpdateItems = false
+    private(set) public var needsTableViewUpdate = false
     
     private var updateItemsNotification = Notification.Name("updateItems")
     
     public override init(tableView: UITableView, cellProvider: @escaping UITableViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType>.CellProvider) {
         super.init(tableView: tableView, cellProvider: cellProvider)
-        NotificationCenter.default.addObserver(self, selector: #selector(updateItemsIfNeeded), name: updateItemsNotification, object: self)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateTableViewIfNeeded), name: updateItemsNotification, object: self)
     }
     
-    @objc public func updateItemsIfNeeded() {
-        guard needsUpdateItems else { return }
+    @objc public func updateTableViewIfNeeded() {
+        guard needsTableViewUpdate else { return }
         defer {
-            needsUpdateItems = false
+            needsTableViewUpdate = false
         }
         var snap = NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>()
         snap.appendSections(sections)
