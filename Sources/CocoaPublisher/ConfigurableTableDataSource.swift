@@ -49,51 +49,74 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
         apply(snap, animatingDifferences: true)
     }
     
-    private var canEditRowBlock: ((IndexPath) -> Bool)?
-    public override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        canEditRowBlock?(indexPath) ?? false
+    
+    public override func sectionIdentifier(for index: Int) -> SectionIdentifierType? {
+        if #available(iOS 15, *) {
+            return super.sectionIdentifier(for: index)
+        } else {
+            let allSections = sections.filter { items.keys.contains($0) }
+            guard index < allSections.count else {
+                return nil
+            }
+            return allSections[index]
+        }
     }
-    public func canEditRow(_ b: @escaping (IndexPath) -> Bool) {
+    
+    private var canEditRowBlock: (((section: SectionIdentifierType, row: Int)) -> Bool)?
+    public override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        if let section = sectionIdentifier(for: indexPath.section) {
+            return canEditRowBlock?((section: section, row: indexPath.row)) ?? false
+        }
+        return false
+    }
+    public func canEditRow(_ b: @escaping (_ indexPath: (section: SectionIdentifierType, row: Int)) -> Bool) {
         canEditRowBlock = b
     }
     
-    private var titleForHeader: ((_ section: SectionIdentifierType) -> String?)?
+    private var titleForHeader: ((SectionIdentifierType) -> String?)?
     public override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         titleForHeader?(sections[section])
     }
-    public func titleForHeaderInSection(_ b: @escaping (SectionIdentifierType) -> String?) {
+    public func titleForHeaderInSection(_ b: @escaping (_ section: SectionIdentifierType) -> String?) {
         titleForHeader = b
     }
     
-    private var titleForFooter: ((_ section: SectionIdentifierType) -> String?)?
+    private var titleForFooter: ((SectionIdentifierType) -> String?)?
     public override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         titleForFooter?(sections[section])
     }
-    public func titleForFooterInSection(_ b: @escaping (SectionIdentifierType) -> String?) {
+    public func titleForFooterInSection(_ b: @escaping (_ section: SectionIdentifierType) -> String?) {
         titleForFooter = b
     }
     
-    private var commitEditing: ((UITableViewCell.EditingStyle, IndexPath) -> Void)?
+    private var commitEditing: ((UITableViewCell.EditingStyle, (section: SectionIdentifierType, row: Int)) -> Void)?
     public override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        commitEditing?(editingStyle, indexPath)
+        if let section = sectionIdentifier(for: indexPath.section) {
+            commitEditing?(editingStyle, (section: section, row: indexPath.row))
+        }
     }
-    public func commitEdit(_ b: @escaping (UITableViewCell.EditingStyle, IndexPath) -> Void) {
+    public func commitEdit(_ b: @escaping (_ editingStyle: UITableViewCell.EditingStyle, _ indexPath: (section: SectionIdentifierType, row: Int)) -> Void) {
         commitEditing = b
     }
     
-    private var canMoveRowBlock: ((IndexPath) -> Bool)?
+    private var canMoveRowBlock: (((section: SectionIdentifierType, row: Int)) -> Bool)?
     public override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        canMoveRowBlock?(indexPath) ?? false
+        if let section = sectionIdentifier(for: indexPath.section) {
+            return canMoveRowBlock?((section: section, row: indexPath.row)) ?? false
+        }
+        return false
     }
-    public func canMoveRow(_ b: @escaping (IndexPath) -> Bool) {
+    public func canMoveRow(_ b: @escaping (_ indexPath: (section: SectionIdentifierType, row: Int)) -> Bool) {
         canMoveRowBlock = b
     }
     
-    private var moveRowBlock: ((IndexPath, IndexPath) -> Void)?
+    private var moveRowBlock: (((section: SectionIdentifierType, row: Int), (section: SectionIdentifierType, row: Int)) -> Void)?
     public override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        moveRowBlock?(sourceIndexPath, destinationIndexPath)
+        if let sourceSection = sectionIdentifier(for: sourceIndexPath.section), let destinationSection = sectionIdentifier(for: destinationIndexPath.section) {
+            moveRowBlock?((section: sourceSection, row: sourceIndexPath.row), (section: destinationSection, row: destinationIndexPath.row))
+        }
     }
-    public func moveRow(_ b: @escaping (_ sourceIndexPath: IndexPath, _ destinationIndexPath: IndexPath) -> Void) {
+    public func moveRow(_ b: @escaping (_ sourceIndexPath: (section: SectionIdentifierType, row: Int), _ destinationIndexPath: (section: SectionIdentifierType, row: Int)) -> Void) {
         moveRowBlock = b
     }
     
