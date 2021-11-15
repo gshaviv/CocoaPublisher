@@ -10,11 +10,13 @@ import UIKit
 public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifierType>: UITableViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType> where SectionIdentifierType : Hashable, ItemIdentifierType : Hashable {
     public var items = [SectionIdentifierType: [ItemIdentifierType]]() {
         didSet {
+            needsUpdateItems = true
             NotificationQueue.default.enqueue(Notification(name: updateItemsNotification, object: self, userInfo: nil), postingStyle: .whenIdle, coalesceMask: [.onName, .onSender], forModes: nil)
         }
     }
     public var sections = [SectionIdentifierType]() {
         didSet {
+            needsUpdateItems = true
             NotificationQueue.default.enqueue(Notification(name: updateItemsNotification, object: self, userInfo: nil), postingStyle: .whenIdle, coalesceMask: [.onName, .onSender], forModes: nil)
         }
     }
