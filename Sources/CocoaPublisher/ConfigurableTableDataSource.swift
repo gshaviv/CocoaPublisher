@@ -62,6 +62,14 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
         }
     }
     
+    public func itemIdentifier(for indexPath: (section: SectionIdentifierType, row: Int)) -> ItemIdentifierType? {
+        let allSections = sections.filter { items.keys.contains($0) }
+        if let idx = allSections.firstIndex(of: indexPath.section) {
+            return itemIdentifier(for: IndexPath(row: indexPath.row, section: idx))
+        }
+        return nil
+    }
+    
     private var canEditRowBlock: (((section: SectionIdentifierType, row: Int)) -> Bool)?
     public override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         if let section = sectionIdentifier(for: indexPath.section) {
