@@ -11,16 +11,20 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
     public var items = [SectionIdentifierType: [ItemIdentifierType]]() {
         didSet {
             needsTableViewUpdate = true
-            NotificationQueue.default.enqueue(Notification(name: updateItemsNotification, object: self, userInfo: nil), postingStyle: .whenIdle, coalesceMask: [.onName, .onSender], forModes: nil)
         }
     }
     public var sections = [SectionIdentifierType]() {
         didSet {
             needsTableViewUpdate = true
-            NotificationQueue.default.enqueue(Notification(name: updateItemsNotification, object: self, userInfo: nil), postingStyle: .whenIdle, coalesceMask: [.onName, .onSender], forModes: nil)
         }
     }
-    private(set) public var needsTableViewUpdate = false
+    private(set) public var needsTableViewUpdate = false {
+        didSet {
+            if needsTableViewUpdate {
+                NotificationQueue.default.enqueue(Notification(name: updateItemsNotification, object: self, userInfo: nil), postingStyle: .whenIdle, coalesceMask: [.onName, .onSender], forModes: nil)
+            }
+        }
+    }
     
     private var updateItemsNotification = Notification.Name("updateItems")
     
