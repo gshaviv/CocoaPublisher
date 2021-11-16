@@ -31,6 +31,7 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
     public override init(tableView: UITableView, cellProvider: @escaping UITableViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType>.CellProvider) {
         super.init(tableView: tableView, cellProvider: cellProvider)
         NotificationCenter.default.addObserver(self, selector: #selector(updateTableViewIfNeeded), name: updateItemsNotification, object: self)
+        defaultRowAnimation = .fade // make this the efault as the auto default doesn't work well
     }
     
     @objc public func updateTableViewIfNeeded() {
