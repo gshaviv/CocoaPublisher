@@ -51,9 +51,9 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
     }
     
     
-    public override func sectionIdentifier(for index: Int) -> SectionIdentifierType? {
+    private func section(for index: Int) -> SectionIdentifierType? {
         if #available(iOS 15, *) {
-            return super.sectionIdentifier(for: index)
+            return sectionIdentifier(for: index)
         } else {
             let allSections = sections.filter { items.keys.contains($0) }
             guard index < allSections.count else {
@@ -73,7 +73,7 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
     
     private var canEditRowBlock: (((section: SectionIdentifierType, row: Int)) -> Bool)?
     public override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        if let section = sectionIdentifier(for: indexPath.section) {
+        if let section = section(for: indexPath.section) {
             return canEditRowBlock?((section: section, row: indexPath.row)) ?? false
         }
         return false
@@ -100,7 +100,7 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
     
     private var commitEditing: ((UITableViewCell.EditingStyle, (section: SectionIdentifierType, row: Int)) -> Void)?
     public override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if let section = sectionIdentifier(for: indexPath.section) {
+        if let section = section(for: indexPath.section) {
             commitEditing?(editingStyle, (section: section, row: indexPath.row))
         }
     }
@@ -110,7 +110,7 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
     
     private var canMoveRowBlock: (((section: SectionIdentifierType, row: Int)) -> Bool)?
     public override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        if let section = sectionIdentifier(for: indexPath.section) {
+        if let section = section(for: indexPath.section) {
             return canMoveRowBlock?((section: section, row: indexPath.row)) ?? false
         }
         return false
@@ -121,7 +121,7 @@ public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifi
     
     private var moveRowBlock: (((section: SectionIdentifierType, row: Int), (section: SectionIdentifierType, row: Int)) -> Void)?
     public override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        if let sourceSection = sectionIdentifier(for: sourceIndexPath.section), let destinationSection = sectionIdentifier(for: destinationIndexPath.section) {
+        if let sourceSection = section(for: sourceIndexPath.section), let destinationSection = section(for: destinationIndexPath.section) {
             moveRowBlock?((section: sourceSection, row: sourceIndexPath.row), (section: destinationSection, row: destinationIndexPath.row))
         }
     }
