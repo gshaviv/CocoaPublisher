@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public class ConfigurableCollectionViewDataSource<SectionIdentifierType, ItemIdentifierType>: UICollectionViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType> where SectionIdentifierType : Hashable, ItemIdentifierType : Hashable {
     public var items = [SectionIdentifierType: [ItemIdentifierType]]() {
         didSet {
