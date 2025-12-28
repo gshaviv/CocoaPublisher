@@ -7,6 +7,7 @@
 
 import UIKit
 
+@MainActor
 public class ConfigurableTableViewDataSource<SectionIdentifierType, ItemIdentifierType>: UITableViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType> where SectionIdentifierType : Hashable, ItemIdentifierType : Hashable {
     public var items = [SectionIdentifierType: [ItemIdentifierType]]() {
         didSet {
